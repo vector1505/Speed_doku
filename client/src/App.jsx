@@ -1,0 +1,19 @@
+import { useState } from 'react'
+import './App.css'
+import StartMenu from './components/StartMenu'
+import SudokuMasterApp from './components/SudokuMasterApp'
+import Leaderboard from './components/Leaderboard'
+
+
+function App() {
+  const [count, setCount] = useState(0)
+
+  return (
+    <>
+     <Leaderboard scores={[{ name: "Alice", time: 55 }, { name: "Bob", time: 72 }]} />
+
+    </>
+  )
+}
+
+export default App
