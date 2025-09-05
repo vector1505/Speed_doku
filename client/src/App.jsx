@@ -10,8 +10,7 @@ function App() {
 
   return (
     <>
-     <Leaderboard scores={[{ name: "Alice", time: 55 }, { name: "Bob", time: 72 }]} />
-
+      <StartMenu />
     </>
   )
 }

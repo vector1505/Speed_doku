@@ -20,8 +20,8 @@ function generateBoard(removed = 40) {
   }
 
   function solve(board) {
-    for (let row = 0; row < 9; row++) {
-      for (let col = 0; col < 9; col++) {
+    for (let row = 0; row < 8; row++) {
+      for (let col = 0; col < 8; col++) {
         if (board[row][col] === 0) {
           for (let num = 1; num <= 9; num++) {
             if (isSafe(board, row, col, num)) {
@@ -70,8 +70,8 @@ export default function SudokuMasterApp() {
   useEffect(() => {
     if (isWin) return;
     const timer = setInterval(() => {
-      setTime(Math.floor((Date.now() - startTime) / 1000));
-    }, 1000);
+      setTime(Math.floor((Date.now() - startTime) / 100));
+    }, 100);
     return () => clearInterval(timer);
   }, [startTime, isWin]);
 
@@ -116,7 +116,6 @@ export default function SudokuMasterApp() {
       <div className="grid grid-cols-9 bg-gray-700 p-1 rounded">
         {board.map((row, i) =>
           row.map((cell, j) => {
-            // Add thick borders for 3x3 squares
             let borderClass = "w-14 h-14 text-center text-xl border bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 ";
             borderClass += "border-gray-400 ";
             if (j % 3 === 0) borderClass += "border-l-4 ";
@@ -151,7 +150,7 @@ export default function SudokuMasterApp() {
             <button
               onClick={() => {
                 if (playerName.trim()) {
-                  navigate("/leaderboard", { state: { newScore: { name: playerName, time: frozenTime } } });
+                  navigate("/", { state: { newScore: { name: playerName, time: frozenTime } } });
                 }
               }}
               className="w-full bg-purple-600 text-white py-2 rounded disabled:opacity-50"
