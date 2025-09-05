@@ -19,7 +19,7 @@ mongoose.connect(dbURI).then((result) => {
     app.listen(PORT);
     console.log("Connected");
 }).catch((err) => {
-    console.log("Chud gaye guru: ", err);
+    console.log("Error: ", err);
 })
 
 
