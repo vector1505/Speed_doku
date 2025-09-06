@@ -150,7 +150,7 @@ export default function SudokuMasterApp() {
             <button
               onClick={() => {
                 if (playerName.trim()) {
-                  navigate("/", { state: { newScore: { name: playerName, time: frozenTime } } });
+                  navigate("/");
                 }
               }}
               className="w-full bg-purple-600 text-white py-2 rounded disabled:opacity-50"

@@ -2,7 +2,7 @@ import express from "express"
 import Leaderboard from "../models/leaderboard.model.js"
 
 const get_index = (req, res) => {
-    Leaderboard.find().sort({ time: -1 })
+    Leaderboard.find()
         .then((result) => {
             res.json(result);
         })
