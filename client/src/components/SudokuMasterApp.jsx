@@ -20,8 +20,8 @@ function generateBoard(removed = 40) {
   }
 
   function solve(board) {
-    for (let row = 0; row < 8; row++) {
-      for (let col = 0; col < 8; col++) {
+    for (let row = 0; row < 9; row++) {
+      for (let col = 0; col < 9; col++) {
         if (board[row][col] === 0) {
           for (let num = 1; num <= 9; num++) {
             if (isSafe(board, row, col, num)) {
