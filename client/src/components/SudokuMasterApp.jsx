@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 function generateBoard(removed = 40) {
@@ -52,20 +52,56 @@ function generateBoard(removed = 40) {
   return { puzzle, solution: board };
 }
 
+const STORAGE_KEY = "sudoku_master_state";
+
+function loadState(removed) {
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (!saved) return null;
+    // If removed count changes, ignore old state
+    if (saved.removed !== removed) return null;
+    return saved;
+  } catch {
+    return null;
+  }
+}
+
+function saveState(state) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
 
 export default function SudokuMasterApp() {
   const location = useLocation();
   const navigate = useNavigate();
   const removed = location.state?.removed || 40;
-  const [boardData, setBoardData] = useState(() => generateBoard(removed));
-  const [board, setBoard] = useState(boardData.puzzle);
-  const [solution, setSolution] = useState(boardData.solution);
-  const [startTime, setStartTime] = useState(Date.now());
-  const [time, setTime] = useState(0);
-  const [isWin, setIsWin] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [frozenTime, setFrozenTime] = useState(null);
-  const [playerName, setPlayerName] = useState("");
+
+  // Try to load from storage
+  const loaded = loadState(removed);
+  const [boardData, setBoardData] = useState(() => loaded?.boardData || generateBoard(removed));
+  const [board, setBoard] = useState(() => loaded?.board || boardData.puzzle);
+  const [solution, setSolution] = useState(() => loaded?.solution || boardData.solution);
+  const [startTime, setStartTime] = useState(() => loaded?.startTime || Date.now());
+  const [time, setTime] = useState(() => loaded?.time || 0);
+  const [isWin, setIsWin] = useState(() => loaded?.isWin || false);
+  const [showModal, setShowModal] = useState(() => loaded?.showModal || false);
+  const [frozenTime, setFrozenTime] = useState(() => loaded?.frozenTime || null);
+  const [playerName, setPlayerName] = useState(() => loaded?.playerName || "");
+
+  // Persist state on changes
+  useEffect(() => {
+    saveState({
+      removed,
+      boardData,
+      board,
+      solution,
+      startTime,
+      time,
+      isWin,
+      showModal,
+      frozenTime,
+      playerName,
+    });
+  }, [removed, boardData, board, solution, startTime, time, isWin, showModal, frozenTime, playerName]);
 
   useEffect(() => {
     if (isWin) return;
@@ -75,7 +111,7 @@ export default function SudokuMasterApp() {
     return () => clearInterval(timer);
   }, [startTime, isWin]);
 
-  function handleChange(row, col, value) {
+  const handleChange = useCallback((row, col, value) => {
     if (boardData.puzzle[row][col] !== 0 || isWin) return;
     if (/^[1-9]$/.test(value) || value === "") {
       let newBoard = board.map((r) => [...r]);
@@ -83,9 +119,9 @@ export default function SudokuMasterApp() {
       setBoard(newBoard);
       checkWin(newBoard);
     }
-  }
+  }, [board, boardData.puzzle, isWin, checkWin]);
 
-  function checkWin(currentBoard) {
+  const checkWin = useCallback((currentBoard) => {
     for (let i = 0; i < 9; i++) {
       for (let j = 0; j < 9; j++) {
         if (currentBoard[i][j] !== solution[i][j]) return;
@@ -94,9 +130,9 @@ export default function SudokuMasterApp() {
     setIsWin(true);
     setFrozenTime(time);
     setShowModal(true);
-  }
+  }, [solution, time]);
 
-  function handlePlayAgain() {
+  const handlePlayAgain = useCallback(() => {
     const newData = generateBoard(removed);
     setBoardData(newData);
     setBoard(newData.puzzle);
@@ -106,7 +142,17 @@ export default function SudokuMasterApp() {
     setIsWin(false);
     setFrozenTime(null);
     setShowModal(false);
-  }
+    setPlayerName("");
+    // Clear storage for new game
+    localStorage.removeItem(STORAGE_KEY);
+  }, [removed]);
+
+  const handleGoLeaderboard = useCallback(() => {
+    if (playerName.trim()) {
+      localStorage.removeItem(STORAGE_KEY);
+      navigate("/");
+    }
+  }, [playerName, navigate]);
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100 p-6">
@@ -148,15 +194,17 @@ export default function SudokuMasterApp() {
               className="w-full mb-4 px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
             <button
-              onClick={() => {
-                if (playerName.trim()) {
-                  navigate("/");
-                }
-              }}
+              onClick={handleGoLeaderboard}
               className="w-full bg-purple-600 text-white py-2 rounded disabled:opacity-50"
               disabled={!playerName.trim()}
             >
               Go to Leaderboard
+            </button>
+            <button
+              onClick={handlePlayAgain}
+              className="w-full mt-2 bg-gray-300 text-gray-800 py-2 rounded"
+            >
+              Play Again
             </button>
           </div>
         </div>

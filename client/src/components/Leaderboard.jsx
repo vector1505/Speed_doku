@@ -1,49 +1,72 @@
-import React, { useMemo, useEffect, useState } from "react";
+import React, { useMemo, useEffect, useReducer } from "react";
 import { useLocation } from "react-router-dom";
 
 
 const API_URL = "http://localhost:3000";
 
 
+const initialState = {
+  scores: [],
+  loading: true,
+  error: null,
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "FETCH_START":
+      return { ...state, loading: true, error: null };
+    case "FETCH_SUCCESS":
+      return { ...state, loading: false, scores: action.payload, error: null };
+    case "FETCH_ERROR":
+      return { ...state, loading: false, error: action.payload };
+    default:
+      return state;
+  }
+}
+
 export default function Leaderboard() {
   const location = useLocation();
   const newScore = location.state?.newScore;
-  const [scores, setScores] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [state, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
+    const abortController = new AbortController();
+    let isMounted = true;
     async function addScoreAndFetch() {
+      dispatch({ type: "FETCH_START" });
       try {
         if (newScore && newScore.name && typeof newScore.time === "number") {
           await fetch(`${API_URL}/add`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(newScore)
+            body: JSON.stringify(newScore),
+            signal: abortController.signal
           });
         }
-        const res = await fetch(`${API_URL}/leaderboard`);
+        const res = await fetch(`${API_URL}/leaderboard`, { signal: abortController.signal });
         if (!res.ok) throw new Error("Failed to fetch leaderboard");
         const data = await res.json();
-        setScores(data);
+        if (isMounted) dispatch({ type: "FETCH_SUCCESS", payload: data.data || data });
       } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+        if (err.name !== "AbortError" && isMounted) dispatch({ type: "FETCH_ERROR", payload: err.message });
       }
     }
     addScoreAndFetch();
-  }, []);
+    return () => {
+      isMounted = false;
+      abortController.abort();
+    };
+  }, [newScore]);
 
-  const sortedScores = [...scores].sort((a, b) => a.time - b.time);
+  const sortedScores = useMemo(() => [...state.scores].sort((a, b) => a.time - b.time), [state.scores]);
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100 p-6">
       <h1 className="text-3xl font-bold text-purple-600 mb-6">Leaderboard</h1>
-      {loading ? (
+      {state.loading ? (
         <p className="text-lg text-gray-600">Loading...</p>
-      ) : error ? (
-        <p className="text-lg text-red-600">{error}</p>
+      ) : state.error ? (
+        <p className="text-lg text-red-600">{state.error}</p>
       ) : sortedScores.length === 0 ? (
         <p className="text-lg text-gray-600">No scores yet. Play a game first!</p>
       ) : (

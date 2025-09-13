@@ -13,6 +13,7 @@ dotenv.config({
 
 import mongoose from 'mongoose';
 import routes from './routes/leaderRoutes.js'
+import { errorHandler } from './middleware/responseHandlers.js';
 
 const dbURI = process.env.DB_URI;
 mongoose.connect(dbURI).then((result) => {
@@ -29,6 +30,11 @@ app.get('/', (req, res) => {
 
 app.use('/', routes);
 
+
+// 404 handler
 app.use((req, res) => {
-    res.send({success:"false", message:"Im going back to 505"});
+    res.status(404).json({ success: false, message: "Not Found" });
 });
+
+// Common error handler
+app.use(errorHandler);

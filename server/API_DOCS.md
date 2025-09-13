@@ -11,19 +11,23 @@
 ### 1. GET `/`
 - **Description:** Health check endpoint.
 - **Response:**
-  - `200 OK`: `{ success: "true" }`
+  - `200 OK`: `{ success: true, message: "Success", data: { success: "true" } }`
 
 ### 2. GET `/leaderboard`
 - **Description:** Retrieve all leaderboard entries.
 - **Response:**
-  - `200 OK`: Array of leaderboard objects
-  - `500`: `{ error: "Failed to fetch leaderboard", details: ... }`
+  - `200 OK`: `{ success: true, message: "Leaderboard fetched", data: [...] }`
+  - `500`: Standardized error response (see below)
 - **Example Response:**
 ```json
-[
-  { "_id": "...", "name": "Alice", "time": "00:30" },
-  { "_id": "...", "name": "Bob", "time": "00:25" }
-]
+{
+  "success": true,
+  "message": "Leaderboard fetched",
+  "data": [
+    { "_id": "...", "name": "Alice", "time": "00:30" },
+    { "_id": "...", "name": "Bob", "time": "00:25" }
+  ]
+}
 ```
 
 ### 3. POST `/add`
@@ -36,14 +40,14 @@
 }
 ```
 - **Response:**
-  - `201 Created`: The created leaderboard object
-  - `400`: `{ error: "Failed to add entry", details: ... }`
+  - `201 Created`: `{ success: true, message: "Entry added", data: { ... } }`
+  - `400`: Standardized error response (see below)
 
 ### 4. GET `/test`
 - **Description:** Add a test entry (`name: Vijay`, `time: 00:20`) to the leaderboard.
 - **Response:**
-  - `201 Created`: The created test entry
-  - `400`: `{ error: "Failed to add test entry", details: ... }`
+  - `201 Created`: `{ success: true, message: "Test entry added", data: { ... } }`
+  - `400`: Standardized error response (see below)
 
 ---
 
@@ -56,7 +60,21 @@
 ---
 
 ## Error Handling
-- All endpoints return JSON error messages with an `error` field and additional `details` if an error occurs.
+- All errors return a standardized JSON response:
+```json
+{
+  "success": false,
+  "message": "Error message",
+  "details": "Optional error details"
+}
+```
+- 404 Not Found:
+```json
+{
+  "success": false,
+  "message": "Not Found"
+}
+```
 
 ---
 
@@ -77,6 +95,6 @@ curl http://localhost:3000/leaderboard
 ---
 
 ## Notes
-- All responses are in JSON format.
+- All responses are in JSON format and follow a common structure.
 - CORS is enabled.
 - Ensure MongoDB is running and `DB_URI` is set in `.env`.
