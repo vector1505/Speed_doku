@@ -5,7 +5,7 @@ import SudokuMasterApp from "./components/SudokuMasterApp"
 import Leaderboard from "./components/Leaderboard"
 import NotFound from "./components/NotFound"
  
-import { createBrowserRouter, RouterProvider } from 'react-router'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
 import './index.css'
 
@@ -16,14 +16,14 @@ const router = createBrowserRouter([
     errorElement: <NotFound />
   },
   {
-  path: "/Sudoku",
-  element: <SudokuMasterApp />,
-  errorElement: <NotFound />
-},
-{
-  path: "/leaderboard",
-  element: <Leaderboard />,
-  errorElement: <NotFound />
+    path: "/sudoku",
+    element: <SudokuMasterApp />,
+    errorElement: <NotFound />
+  },
+  {
+    path: "/leaderboard",
+    element: <Leaderboard />,
+    errorElement: <NotFound />
 
 }]);
 

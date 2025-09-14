@@ -150,7 +150,7 @@ export default function SudokuMasterApp() {
   const handleGoLeaderboard = useCallback(() => {
     if (playerName.trim()) {
       localStorage.removeItem(STORAGE_KEY);
-      navigate("/");
+      navigate("/leaderboard");
     }
   }, [playerName, navigate]);
 

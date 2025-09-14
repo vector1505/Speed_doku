@@ -11,7 +11,7 @@ const StartMenu = () => {
   ];
 
   const handleSelect = (level) => { 
-    navigate("/Sudoku", { state: { removed: level.removed, difficulty: level.name } });
+    navigate("/sudoku", { state: { removed: level.removed, difficulty: level.name } });
   };
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
