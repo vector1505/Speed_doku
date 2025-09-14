@@ -1,4 +1,3 @@
-
 import express from "express";
 import Leaderboard from "../models/leaderboard.model.js";
 import { sendResponse } from "../middleware/responseHandlers.js";

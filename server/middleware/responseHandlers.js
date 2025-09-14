@@ -3,7 +3,7 @@ export function sendResponse(res, data, message = "Success", status = 200) {
   res.status(status).json({
     success: true,
     message,
-    data,
+    data
   });
 }
 
@@ -13,6 +13,7 @@ export function errorHandler(err, req, res, next) {
   res.status(err.status || 500).json({
     success: false,
     message: err.message || "Internal Server Error",
-    details: err.details || undefined,
+    details: err.details || undefined
   });
 }
+

@@ -1,18 +1,17 @@
-import React from 'react'
+import React, { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import SudokuMasterApp from './SudokuMasterApp';
+
+const difficulties = [
+  { name: "Easy", removed: 64, color: "text-green-600", icon: "⚡" },
+  { name: "Medium", removed: 45, color: "text-yellow-600", icon: "⏱️" },
+  { name: "Hard", removed: 50, color: "text-red-600", icon: "🔥" },
+];
 
 const StartMenu = () => {
   const navigate = useNavigate();
-  const difficulties = [
-    { name: "Easy", removed: 64, color: "text-green-600", icon: "⚡" },
-    { name: "Medium", removed: 45, color: "text-yellow-600", icon: "⏱️" },
-    { name: "Hard", removed: 50, color: "text-red-600", icon: "🔥" },
-  ];
-
-  const handleSelect = (level) => { 
+  const handleSelect = useCallback((level) => {
     navigate("/sudoku", { state: { removed: level.removed, difficulty: level.name } });
-  };
+  }, [navigate]);
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">
       <div className="text-center">

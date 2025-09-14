@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useReducer } from "react";
+import React, { useMemo, useEffect, useCallback, useReducer } from "react";
 import { useLocation } from "react-router-dom";
 
 
@@ -29,34 +29,28 @@ export default function Leaderboard() {
   const newScore = location.state?.newScore;
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  useEffect(() => {
-    const abortController = new AbortController();
-    let isMounted = true;
-    async function addScoreAndFetch() {
-      dispatch({ type: "FETCH_START" });
-      try {
-        if (newScore && newScore.name && typeof newScore.time === "number") {
-          await fetch(`${API_URL}/add`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(newScore),
-            signal: abortController.signal
-          });
-        }
-        const res = await fetch(`${API_URL}/leaderboard`, { signal: abortController.signal });
-        if (!res.ok) throw new Error("Failed to fetch leaderboard");
-        const data = await res.json();
-        if (isMounted) dispatch({ type: "FETCH_SUCCESS", payload: data.data || data });
-      } catch (err) {
-        if (err.name !== "AbortError" && isMounted) dispatch({ type: "FETCH_ERROR", payload: err.message });
+  const addScoreAndFetch = useCallback(async () => {
+    dispatch({ type: "FETCH_START" });
+    try {
+      if (newScore && newScore.name && typeof newScore.time === "number") {
+        await fetch(`${API_URL}/add`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(newScore)
+        });
       }
+      const res = await fetch(`${API_URL}/leaderboard`);
+      if (!res.ok) throw new Error("Failed to fetch leaderboard");
+      const data = await res.json();
+      dispatch({ type: "FETCH_SUCCESS", payload: data });
+    } catch (err) {
+      dispatch({ type: "FETCH_ERROR", payload: err.message });
     }
-    addScoreAndFetch();
-    return () => {
-      isMounted = false;
-      abortController.abort();
-    };
   }, [newScore]);
+
+  useEffect(() => {
+    addScoreAndFetch();
+  }, [addScoreAndFetch]);
 
   const sortedScores = useMemo(() => [...state.scores].sort((a, b) => a.time - b.time), [state.scores]);
 
