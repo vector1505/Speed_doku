@@ -14,7 +14,6 @@ function requireApiKey(req, res, next) {
 }
 
 router.post('/add', requireApiKey, leaderController.create);
-
 router.get('/test',leaderController.test);
 
 export default router;
