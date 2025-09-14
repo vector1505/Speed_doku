@@ -30,6 +30,13 @@ app.get('/', (req, res) => {
 
 app.use('/', routes);
 
+// security middleware
+import helmet from 'helmet';
+import mongoSanitize from 'express-mongo-sanitize';
+
+app.use(helmet());
+app.use(mongoSanitize());
+
 
 // 404 handler
 app.use((req, res) => {

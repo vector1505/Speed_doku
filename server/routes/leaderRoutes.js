@@ -5,7 +5,15 @@ import * as leaderController from "../controllers/leaderController.js"
 
 router.get('/leaderboard',leaderController.get_index);
 
-router.post('/add',leaderController.create);
+function requireApiKey(req, res, next) {
+  const apiKey = req.header('x-api-key');
+  if (!apiKey || apiKey !== process.env.API_KEY) {
+    return res.status(401).json({ success: false, message: 'Unauthorized' });
+  }
+  next();
+}
+
+router.post('/add', requireApiKey, leaderController.create);
 
 router.get('/test',leaderController.test);
 

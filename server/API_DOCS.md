@@ -31,7 +31,9 @@
 ```
 
 ### 3. POST `/add`
-- **Description:** Add a new entry to the leaderboard.
+- **Description:** Add a new entry to the leaderboard. **Requires API key.**
+- **Headers:**
+  - `x-api-key: your_api_key_here`
 - **Request Body:**
 ```json
 {
@@ -42,6 +44,7 @@
 - **Response:**
   - `201 Created`: `{ success: true, message: "Entry added", data: { ... } }`
   - `400`: Standardized error response (see below)
+  - `401`: `{ success: false, message: "Unauthorized" }` (if API key is missing or invalid)
 
 ### 4. GET `/test`
 - **Description:** Add a test entry (`name: Vijay`, `time: 00:20`) to the leaderboard.
@@ -80,10 +83,11 @@
 
 ## Example Usage
 
-### Add Entry
+### Add Entry (with API key)
 ```bash
 curl -X POST http://localhost:3000/add \
   -H "Content-Type: application/json" \
+  -H "x-api-key: your_api_key_here" \
   -d '{"name": "Charlie", "time": "00:22"}'
 ```
 
@@ -97,4 +101,5 @@ curl http://localhost:3000/leaderboard
 ## Notes
 - All responses are in JSON format and follow a common structure.
 - CORS is enabled.
-- Ensure MongoDB is running and `DB_URI` is set in `.env`.
+- Ensure MongoDB is running and `DB_URI` and `API_KEY` are set in `.env`.
+- The `/add` endpoint requires a valid API key in the `x-api-key` header.

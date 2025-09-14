@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 
 
 const API_URL = "http://localhost:3000";
+const API_KEY = import.meta.env.VITE_API_KEY;
 
 
 const initialState = {
@@ -35,7 +36,10 @@ export default function Leaderboard() {
       if (newScore && newScore.name && typeof newScore.time === "number") {
         await fetch(`${API_URL}/add`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": API_KEY
+          },
           body: JSON.stringify(newScore)
         });
       }
