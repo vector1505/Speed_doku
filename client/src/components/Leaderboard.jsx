@@ -2,7 +2,7 @@ import React, { useMemo, useEffect, useCallback, useReducer } from "react";
 import { useLocation } from "react-router-dom";
 
 
-const API_URL = "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 const API_KEY = import.meta.env.VITE_API_KEY;
 
 
@@ -45,8 +45,9 @@ export default function Leaderboard() {
       }
       const res = await fetch(`${API_URL}/leaderboard`);
       if (!res.ok) throw new Error("Failed to fetch leaderboard");
-      const data = await res.json();
-      dispatch({ type: "FETCH_SUCCESS", payload: data });
+      const json = await res.json();
+      const list = Array.isArray(json?.data) ? json.data : (Array.isArray(json) ? json : []);
+      dispatch({ type: "FETCH_SUCCESS", payload: list });
     } catch (err) {
       dispatch({ type: "FETCH_ERROR", payload: err.message });
     }
@@ -56,7 +57,23 @@ export default function Leaderboard() {
     addScoreAndFetch();
   }, [addScoreAndFetch]);
 
-  const sortedScores = useMemo(() => [...state.scores].sort((a, b) => a.time - b.time), [state.scores]);
+  const toSeconds = useCallback((t) => {
+    if (typeof t === "number") return t;
+    if (typeof t === "string") {
+      if (t.includes(":")) {
+        const parts = t.split(":").map(Number);
+        if (parts.length === 2) return (parts[0] || 0) * 60 + (parts[1] || 0);
+      }
+      const n = Number(t);
+      if (!Number.isNaN(n)) return n;
+    }
+    return Number.MAX_SAFE_INTEGER; // unknown format goes to bottom
+  }, []);
+
+  const sortedScores = useMemo(() => {
+    const list = Array.isArray(state.scores) ? state.scores : [];
+    return [...list].sort((a, b) => toSeconds(a?.time) - toSeconds(b?.time));
+  }, [state.scores, toSeconds]);
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-100 p-6">
