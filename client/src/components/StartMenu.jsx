@@ -2,7 +2,7 @@ import React, { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const difficulties = [
-  { name: "Easy", removed: 2, color: "text-green-600", icon: "⚡" },
+  { name: "Easy", removed: 64, color: "text-green-600", icon: "⚡" },
   { name: "Medium", removed: 45, color: "text-yellow-600", icon: "⏱️" },
   { name: "Hard", removed: 50, color: "text-red-600", icon: "🔥" },
 ];

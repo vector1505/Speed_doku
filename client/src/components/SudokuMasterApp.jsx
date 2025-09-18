@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useReducer, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-function generateBoard(removed = 40) {
+function generateBoard(removed = 64) {
   const base = 9;
   let board = Array.from({ length: base }, () => Array(base).fill(0));
 
@@ -151,7 +151,7 @@ export default function SudokuMasterApp() {
 
   const handleGoLeaderboard = useCallback(() => {
     if (state.playerName.trim()) {
-      navigate("/leaderboard");
+      navigate("/");
     }
   }, [state.playerName, navigate]);
 
